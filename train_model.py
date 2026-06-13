@@ -10,6 +10,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import matthews_corrcoef, accuracy_score
 import matplotlib.pyplot as plt
 import joblib
+from tensorflow.keras.layers import Input, Dense, Dropout
 
 # --- 1. REPRODUZIERBARKEIT ---
 np.random.seed(42)
@@ -19,10 +20,14 @@ random.seed(42)
 # --- 2. DATEN VORBEREITEN ---
 print("Lade Daten...")
 df = pd.read_csv('creditcard.csv')
+
+# NEU: Feature Engineering - Sekunden in Tagesstunde umwandeln
+df['Hour'] = (df['Time'] / 3600) % 24
 df = df.drop(['Time'], axis=1)
 
-# NUR Amount skalieren – V1-V28 sind bereits skaliert!
+# Amount UND die neue Hour-Spalte skalieren
 df['Amount'] = StandardScaler().fit_transform(df['Amount'].values.reshape(-1, 1))
+df['Hour'] = StandardScaler().fit_transform(df['Hour'].values.reshape(-1, 1))
 
 normal_data = df[df['Class'] == 0]
 fraud_data  = df[df['Class'] == 1]
@@ -36,6 +41,11 @@ train_data, val_normal = train_test_split(
 print(f"Trainingsdaten (Normal):    {len(train_data)}")
 print(f"Validierungsdaten (Normal): {len(val_normal)}")
 print(f"Betrugsfälle (Test):        {len(fraud_data)}")
+
+# --- 3. AUTOENCODER BAUEN ---
+input_dim = train_data.shape[1]
+
+input_layer  = Input(shape=(input_dim,))
 
 # --- 3. AUTOENCODER BAUEN ---
 input_dim = train_data.shape[1]
@@ -126,4 +136,5 @@ print("\nGrafik gespeichert als 'bild2.png'")
 plt.show()
 
 joblib.dump(StandardScaler().fit(df['Amount'].values.reshape(-1, 1)), 'amount_scaler.save')
+joblib.dump(StandardScaler().fit(df['Hour'].values.reshape(-1, 1)), 'hour_scaler.save')
 autoencoder.save('autoencoder_model.keras')
