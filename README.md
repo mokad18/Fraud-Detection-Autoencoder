@@ -13,7 +13,7 @@ Die Modell-Architektur wurde in einem separaten Skript trainiert, evaluiert und 
 * **Visualisierung:** Matplotlib
 
 ## Modell-Performance & Visualisierung
-![img_1.png](img_1.png)
+![Auswertung.png](Auswertung.png)
 Schwellenwert:    2.5426
 Erkannter Betrug: 398 von 492
 Recall:           80.89%
